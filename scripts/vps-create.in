@@ -27,6 +27,49 @@
 
 vzcheckvar VE_PRVT PRIVATE_TEMPLATE
 
+ensure_unpacked_template()
+{
+	local TAR_OPTIONS="$1"
+	local TARBALL="$2"
+	local DESTINATION="$3"
+	
+	mkdir -p $DESTINATION
+	
+	if [ "$(ls -A $DESTINATION)" ]; then
+		echo "Unpacked template already exists at $DESTINATION"
+	else
+		echo "Unpacking $TARBALL into $DESTINATION..."
+		tar -C $DESTINATION $TAR_OPTIONS -xf $TARBALL ||
+			vzerror "Cannot unpack $TARBALL into $DESTINATION." ${VZ_FS_NEW_VE_PRVT}
+	fi
+}
+
+mount_root()
+{
+	local DIR="$1"
+	local BASE="$2"
+	local OVERLAY="$3"
+	
+	mkdir -p $DIR;
+	mkdir -p $OVERLAY;
+	
+	mount -t aufs -o br:$OVERLAY=rw:$BASE=ro none $DIR ||
+		vzerror "Cannot mount AuFS filestyme. Make sure it's compiled into kernel" ${VZ_FS_NEW_VE_PRVT}
+		
+}
+
+generate_mount_file()
+{
+	local VEID="$1"
+	local DIR="$2"
+	local BASE="$3"
+	local OVERLAY="$4"
+	
+	echo -e "none\t$DIR\taufs\tbr:$OVERLAY=rw:$BASE=ro\t0\t0\n" >> /etc/fstab
+	
+	echo "Savin AuFS mount in /etc/fstab"
+}
+
 create_prvt()
 {
 	local TMP AVAIL NEEDED HEADER OPT
@@ -74,10 +117,22 @@ create_prvt()
 
 	[ "$AVAIL" -ge "$NEEDED" ] ||
 		vzerror "Insufficient disk space in $VE_PRVT; available: $AVAIL, needed: $NEEDED" ${VZ_FS_NO_DISK_SPACE}
-	chmod 700 "$VE_PRVT"
-	tar -C "$VE_PRVT" ${TAR_OPT} ${OPT} -xf "$PRIVATE_TEMPLATE" ||
-		vzerror "Error in tar ${TAR_OPT} ${OPT} -xf $PRIVATE_TEMPLATE" ${VZ_FS_NEW_VE_PRVT}
-	chmod 755 "$VE_PRVT"
+
+	local BASEDIR=`basename $PRIVATE_TEMPLATE .tar.gz`	
+	local VEID=`basename $VE_PRVT .tmp`
+	local FINAL_PRVT="`dirname $VE_PRVT`/$VEID"
+	
+	local BASEPATH="$(dirname $(dirname $VE_PRVT))/base/"
+	local OVERLAYPATH="$(dirname $(dirname $VE_PRVT))/overlay/"
+	
+
+	ensure_unpacked_template "$TAR_OPT $OPT" "$PRIVATE_TEMPLATE" "$BASEPATH$BASEDIR"
+	
+	mount_root $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAYPATH$VEID"
+		
+	chmod 755 "$FINAL_PRVT"
+	
+	generate_mount_file $VEID $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAYPATH$VEID"
 }
 
 create_prvt
