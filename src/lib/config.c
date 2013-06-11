@@ -140,6 +140,7 @@ static vps_config config[] = {
 {"NETIF",	NULL, PARAM_NETIF_ADD},
 {"VEID",	NULL, PARAM_VEID},
 {"NAME",	NULL, PARAM_NAME},
+{"OVERLAY", NULL, PARAM_OVERLAY},
 
 {"FEATURES",	NULL, PARAM_FEATURES},
 {"IOPRIO",	NULL, PARAM_IOPRIO},
@@ -943,6 +944,9 @@ static int store_fs(vps_param *old_p, vps_param *vps_p, vps_config *conf,
 		break;
 	case PARAM_MOUNT_OPTS:
 		ret = conf_store_str(conf_h, conf->name, fs->mount_opts);
+		break;
+	case PARAM_OVERLAY:
+		ret = conf_store_str(conf_h, conf->name, fs->overlay);
 		break;
 	}
 	return ret;
@@ -2221,6 +2225,9 @@ static int parse(envid_t veid, vps_param *vps_p, char *val, int id)
 		break;
 	case PARAM_IGNORED:
 		/* Well known but ignored parameter */
+		break;
+	case PARAM_OVERLAY:
+		ret = conf_parse_str(&vps_p->res.fs.overlay, val);
 		break;
 	default:
 		logger(10, 0, "Not handled parameter %d %s", id, val);

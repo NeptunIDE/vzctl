@@ -46,6 +46,7 @@ typedef struct fs_param {
 	char *tmpl;		/**< TEMPLATE path. */
 	char *mount_opts;	/**< additional mount options (for ploop) */
 	int flags;
+	char *overlay;
 } fs_param;
 
 /** Get CT mount status.

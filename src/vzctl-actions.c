@@ -393,6 +393,7 @@ static int parse_create_opt(envid_t veid, int argc, char **argv,
 	{"diskspace",	required_argument, NULL, PARAM_DISKSPACE},
 	{"local_uid",	required_argument, NULL, PARAM_LOCAL_UID},
 	{"local_gid",	required_argument, NULL, PARAM_LOCAL_GID},
+	{"overlay", required_argument, NULL, PARAM_OVERLAY},
 	{ NULL, 0, NULL, 0 }
 };
 

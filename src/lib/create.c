@@ -115,7 +115,7 @@ static int fs_create(envid_t veid, vps_handler *h, vps_param *vps_p)
 	char buf[PATH_LEN];
 	int ret;
 	char *arg[2];
-	char *env[6];
+	char *env[7]; //add one more than in upstream
 	int quota = 0;
 	int i;
 	char *dst;
@@ -255,6 +255,8 @@ find:
 		env[i++] = strdup(buf);
 	}
 	env[i++] = strdup(ENV_PATH);
+	snprintf(buf, sizeof(buf), "OVERLAY=%s", fs->overlay);
+	env[i++] = strdup(buf);
 	env[i] = NULL;
 	logger(0, 0, "Creating container private area (%s)", tmpl->ostmpl);
 	ret = run_script(VPS_CREATE, arg, env, 0);
