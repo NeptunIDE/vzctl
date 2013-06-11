@@ -27,10 +27,12 @@ VECONFIG  = \
 	    ve-vswap-1024m.conf-sample \
 	    ve-vswap-1g.conf-sample \
 	    ve-vswap-2g.conf-sample \
-	    ve-vswap-4g.conf-sample
+	    ve-vswap-4g.conf-sample 
 
 vpsconf_DATA = \
 	$(VE0CONFIG) \
-	$(VECONFIG)
+	$(VECONFIG) \
+	premount.template \
+	postumount.template
 
 EXTRA_DIST = $(vpsconf_DATA)

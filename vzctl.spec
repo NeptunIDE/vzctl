@@ -24,11 +24,11 @@
 Summary: OpenVZ containers control utility
 Name: vzctl
 Version: 4.3.1
-%define rel 1
+%define rel 2.git.492d571
 Release: %{rel}%{?dist}
 License: GPLv2+
 Group: System Environment/Kernel
-Source: http://download.openvz.org/utils/%{name}/%{version}/src/%{name}-%{version}.tar.bz2
+Source: %{name}-%{version}-%{rel}.tar.bz2
 ExclusiveOS: Linux
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: vzkernel
@@ -56,7 +56,7 @@ This utility allows system administrators to control Linux containers,
 i.e. create, start, shutdown, set various options and limits etc.
 
 %prep
-%setup -q
+%setup -n %{name}-%{version}-%{rel}
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" %configure \
@@ -245,6 +245,8 @@ OpenVZ containers control utility core package
 %config %{_vpsconfdir}/ve-vswap-2g.conf-sample
 %config %{_vpsconfdir}/ve-vswap-4g.conf-sample
 %config %{_vpsconfdir}/0.conf
+%config %{_vpsconfdir}/premount.template
+%config %{_vpsconfdir}/postumount.template
 
 %post core
 /sbin/ldconfig

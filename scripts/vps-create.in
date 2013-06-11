@@ -68,10 +68,17 @@ generate_mount_file()
 	local DIR="$2"
 	local BASE="$3"
 	local OVERLAY="$4"
+	local PREMOUNT_TEMPLATE="/etc/vz/conf/premount.template"
+	local POSTUMOUNT_TEMPLATE="/etc/vz/conf/postumount.template"
+	local PREMOUNT="/etc/vz/conf/$VEID.premount"
+	local POSTUMOUNT="/etc/vz/conf/$VEID.postumount"
 	
-	echo -e "none\t$DIR\taufs\tbr:$OVERLAY=rw:$BASE=ro\t0\t0\n" >> /etc/fstab
+	cp $PREMOUNT_TEMPLATE $PREMOUNT
+	cp $POSTUMOUNT_TEMPLATE $POSTUMOUNT	
+	chmod +x $PREMOUNT
+	chmod +x $POSTUMOUNT
 	
-	echo "Saving AuFS mount in /etc/fstab"
+	echo "Setting premount and postumount scripts"
 }
 
 chown_preload_if_needed()
@@ -132,28 +139,31 @@ create_prvt()
 
 	chown_preload_if_needed
 
-	# Use pv to show nice progress bar if we can
-	#pv -V >/dev/null 2>&1 && CAT=pv
-	#chmod 700 "$VE_PRVT"
-	#$CAT "$PRIVATE_TEMPLATE" | tar -C "$VE_PRVT" ${TAR_OPT} ${OPT} -x ||
-	#	vzerror "Unpack $PRIVATE_TEMPLATE failed" ${VZ_FS_NEW_VE_PRVT}
-	#chmod 755 "$VE_PRVT"
+	if [[ -z $OVERLAY ]] ; then
+		# Use pv to show nice progress bar if we can
+		pv -V >/dev/null 2>&1 && CAT=pv
+		chmod 700 "$VE_PRVT"
+		$CAT "$PRIVATE_TEMPLATE" | tar -C "$VE_PRVT" ${TAR_OPT} ${OPT} -x ||
+			vzerror "Unpack $PRIVATE_TEMPLATE failed" ${VZ_FS_NEW_VE_PRVT}
+		chmod 755 "$VE_PRVT"
+	else		
+		local BASEDIR=`basename $PRIVATE_TEMPLATE .tar.gz`  
+		local VEID=`basename $VE_PRVT .tmp`
+		local FINAL_PRVT="`dirname $VE_PRVT`/$VEID"
+	  
+		local BASEPATH="$(dirname $(dirname $VE_PRVT))/base/"
+		local OVERLAYPATH="$(dirname $(dirname $VE_PRVT))/overlay/"
+	  
 	
-	local BASEDIR=`basename $PRIVATE_TEMPLATE .tar.gz`  
-	local VEID=`basename $VE_PRVT .tmp`
-	local FINAL_PRVT="`dirname $VE_PRVT`/$VEID"
-  
-	local BASEPATH="$(dirname $(dirname $VE_PRVT))/base/"
-	local OVERLAYPATH="$(dirname $(dirname $VE_PRVT))/overlay/"
-  
-
-	ensure_unpacked_template "$TAR_OPT $OPT" "$PRIVATE_TEMPLATE" "$BASEPATH$BASEDIR"
-  
-	mount_root $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAYPATH$VEID"
-    
-	chmod 755 "$FINAL_PRVT"
-  
-	generate_mount_file $VEID $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAYPATH$VEID"
+		ensure_unpacked_template "$TAR_OPT $OPT" "$PRIVATE_TEMPLATE" "$BASEPATH$BASEDIR"
+	  
+		mount_root $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAY"
+	    
+		chmod 755 "$FINAL_PRVT"
+	  
+		generate_mount_file $VEID $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAY"
+		
+	fi
 }
 
 create_prvt

@@ -2844,6 +2844,7 @@ static void merge_fs(fs_param *dst, fs_param *src)
 	MERGE_STR(tmpl)
 	MERGE_STR(mount_opts)
 	MERGE_INT(flags)
+	MERGE_STR(overlay)
 }
 
 static void merge_tmpl(tmpl_param *dst, tmpl_param *src)

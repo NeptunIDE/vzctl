@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source $VE_CONFFILE
+
+mount | grep "$VE_PRIVATE type aufs"
+
+if [[ $? -ne 0 ]] ; then
+	mount -t aufs none -o br:$OVERLAY=rw:/vz/base/$OSTEMPLATE=ro $VE_PRIVATE
+fi

@@ -275,13 +275,17 @@ find:
 			goto err;
 		quota = 0;
 	}
-	/* Unlock CT area */
-//	rmdir(fs->private);
-//	del_cleanup_handler(ch);
-//	if (rename(tmp_dir, fs->private)) {
-//		logger(-1, errno, "Can't rename %s to %s", tmp_dir, fs->private);
-//		ret = VZ_FS_NEW_VE_PRVT;
-//	}
+
+	if (fs->overlay == NULL)
+	{
+		/* Unlock CT area */
+		rmdir(fs->private);
+		del_cleanup_handler(ch);
+		if (rename(tmp_dir, fs->private)) {
+			logger(-1, errno, "Can't rename %s to %s", tmp_dir, fs->private);
+			ret = VZ_FS_NEW_VE_PRVT;
+		}
+	}
 
 err:
 	if (ret && quota) {
