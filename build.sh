@@ -1,9 +1,9 @@
 #!/bin/bash
+#libtoolize
+# apt-get install autoconf  libxml2-dev libcgroup-dev
+#./autogen.sh
 
-# apt-get install autoconf libtoolize libxml2-dev libcgroup-dev
-
-
-./configure --without-ploop --enable-bashcomp --enable-logrotate --with-vz --without-cgroup
+./configure --without-ploop --enable-bashcomp --enable-logrotate --with-vz --without-cgroup --prefix=/usr
 
 make
 

@@ -5,5 +5,5 @@ source $VE_CONFFILE
 mount | grep "$VE_PRIVATE type aufs"
 
 if [[ $? -ne 0 ]] ; then
-	mount -t aufs none -o br:$OVERLAY=rw:/vz/base/$OSTEMPLATE=ro $VE_PRIVATE
+	mount -t aufs none -o br:$OVERLAY/$VEID=rw:/vz/base/$OSTEMPLATE=ro $VE_PRIVATE
 fi

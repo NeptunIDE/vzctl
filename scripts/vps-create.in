@@ -157,7 +157,7 @@ create_prvt()
 	
 		ensure_unpacked_template "$TAR_OPT $OPT" "$PRIVATE_TEMPLATE" "$BASEPATH$BASEDIR"
 	  
-		mount_root $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAY"
+		mount_root $FINAL_PRVT "$BASEPATH$BASEDIR" "$OVERLAY/$VEID"
 	    
 		chmod 755 "$FINAL_PRVT"
 	  
